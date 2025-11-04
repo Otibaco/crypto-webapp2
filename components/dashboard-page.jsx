@@ -200,20 +200,6 @@ export function DashboardPage() {
     return totalValue ? (weightedChange / totalValue) * 100 : 0
   })()
 
-  if (!isConnected) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-6">Connect Your Wallet</h1>
-        <p className="text-gray-600 mb-8 text-center">
-          Please connect your wallet to view your dashboard and manage your assets
-        </p>
-        <div className="w-full max-w-xs ">
-          <appkit-button />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-3 sm:p-5 space-y-5 max-w-5xl mx-auto">
       {/* Header */}
@@ -260,9 +246,9 @@ export function DashboardPage() {
       {/* Actions */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {[
-          { href: "/send", icon: <ArrowUp />, label: "Send" },
-          { href: "/receive", icon: <ArrowDown />, label: "Receive" },
-          { href: "/swap", icon: <ArrowUpDown />, label: "Swap" },
+          { href: "/dashboard/send", icon: <ArrowUp />, label: "Send" },
+          { href: "/dashboard/receive", icon: <ArrowDown />, label: "Receive" },
+          { href: "/dashboard/swap", icon: <ArrowUpDown />, label: "Swap" },
         ].map((action, i) => (
           <Link key={i} href={action.href}>
             <Button className="h-14 sm:h-16 flex flex-col justify-center items-center gap-1 bg-secondary hover:bg-secondary/80 rounded-xl shadow-md w-full">
