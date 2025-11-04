@@ -28,7 +28,7 @@ const formatWeiValue = (value, chain) => {
         const fractionString = fractionPart.toString().padStart(decimal, '0').slice(0, 4);
         
         return `${integerPart}.${fractionString} ${chain.toUpperCase()}`;
-    } catch (e) {
+    } catch {
         // Fallback for environments that don't fully support BigInt in arithmetic
         const amount = Number(value || '0') / (10 ** 18);
         return `${amount.toFixed(4)} ${chain.toUpperCase()}`;

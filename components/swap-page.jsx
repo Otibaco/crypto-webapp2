@@ -5,9 +5,9 @@ import Link from "next/link"
 import {
   useAccount,
   useBalance,
-  useChainId,
-  useWalletClient
+  
 } from "wagmi"
+import Image from 'next/image'
 import { Card, CardContent } from "./ui/card"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "./ui/select"
-import { ArrowLeft, Loader2, Clock, ArrowDownUp, History } from "lucide-react"
+import { ArrowLeft, Loader2, ArrowDownUp, History } from "lucide-react"
 import { getAssetConfig, ASSET_CONFIG_BASE } from "../lib/asset-config"
 import { cn } from "../lib/utils"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog" // Import dialog components
@@ -63,19 +63,24 @@ function allTokens() {
 
 // Token icon - **UPDATED to use local logos from the /public folder**
 function TokenIcon({ token, size = 20 }) {
-  // Assuming token.symbol matches the filename in /public/logos (e.g., /public/logos/BNB.svg)
-  const logoPath = `/logos/${token.symbol?.toUpperCase()}.svg` // Adjust extension if needed (e.g., .png)
+  // Use next/image for better optimization in Next.js
+  const logoPath = `/logos/${token?.symbol?.toUpperCase()}.svg`
+
+  if (!token) return null
 
   return (
-    <img
-      src={logoPath}
-      alt={`${token.symbol} logo`}
-      width={size}
-      height={size}
-      className="rounded-full"
-      // Optional fallback if the file doesn't exist
-      onError={(e) => { e.currentTarget.style.display = "none" }}
-    />
+    <div className="rounded-full overflow-hidden" style={{ width: size, height: size }}>
+      <Image
+        src={logoPath}
+        alt={`${token.symbol} logo`}
+        width={size}
+        height={size}
+        className="object-contain"
+        // fall back to empty display if image fails to load
+        onError={() => { /* noop - next/image doesn't expose currentTarget reliably */ }}
+        unoptimized
+      />
+    </div>
   )
 }
 
@@ -93,6 +98,7 @@ const logSwapStatus = async ({ walletAddress, fromToken, toToken, amount, status
         amountOut: estimatedAmount,
         status,
         txHashes: [], // If you have tx hash, pass it here
+        depositAddress,
         error,
       }),
     })

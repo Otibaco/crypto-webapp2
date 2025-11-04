@@ -17,7 +17,7 @@ export default function WagmiWatcher() {
     // Set a simple cookie so server endpoints may locate the wallet (not HTTP-only).
     try {
       document.cookie = `walletAddress=${address}; path=/; max-age=${60 * 60 * 24 * 365}`
-    } catch (e) {
+    } catch {
       // ignore cookie set failures
     }
 
