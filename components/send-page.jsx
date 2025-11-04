@@ -104,7 +104,6 @@ const DetailRow = ({ label, value, valueClass = "font-medium" }) => (
 
 export function SendPage() {
     const { address: senderAddress, isConnected, chain, connector } = useAccount()
-    const chainIdStr = String(chain?.id);
     const chainId = chain?.id;
     const { switchChain } = useSwitchChain();
 
@@ -175,6 +174,8 @@ export function SendPage() {
     }, [selectedAsset?.symbol]); // Only re-fetch when asset changes
 
     // Effect 2: Recalculate the *other* amount when price changes
+    // We intentionally only run this effect when `assetPrice` changes to avoid update loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (assetPrice <= 0) return; // Can't calculate
 
@@ -219,7 +220,6 @@ export function SendPage() {
     const formattedAmount = useMemo(() => {
         if (!amount) return '';
         try {
-            const decimals = selectedAsset?.decimals ?? 6;
             // Format with group separators but keep decimals
             const parts = amount.split('.');
             const intPart = Number(parts[0]).toLocaleString();
@@ -275,7 +275,7 @@ export function SendPage() {
         // Limit decimals for UI friendliness
         const decimals = Math.min(6, selectedAsset.decimals || 6);
         return max > 0 ? max.toFixed(decimals).toString() : "";
-    }, [selectedAsset, currentBalance]);
+    }, [selectedAsset, currentBalance, balanceData?.formatted]);
 
     // --- VALIDATION & PREPARATION LOGIC ---
     const normalizedRecipient = useMemo(() => {
@@ -442,7 +442,7 @@ export function SendPage() {
                 // Some error objects contain circular references
                 const errJson = JSON.stringify({ message: e?.message, name: e?.name, code: e?.code, data: e?.data || e?.reason || null }, null, 2);
                 setBroadcastError(errJson);
-            } catch (_) {
+            } catch {
                 setBroadcastError(String(e));
             }
 
@@ -704,11 +704,13 @@ export function SendPage() {
                                             : `${base}/${folder}/assets/${selectedAsset.address}/logo.png`;
 
                                         return (
-                                            <img
+                                            <Image
                                                 src={src}
-                                                onError={e => { e.currentTarget.style.display = 'none' }}
                                                 alt={selectedAsset.symbol}
-                                                className="w-5 h-5 rounded-full"
+                                                width={20}
+                                                height={20}
+                                                className="rounded-full"
+                                                unoptimized
                                             />
                                         )
                                     })()}
@@ -932,7 +934,7 @@ export function SendPage() {
 {(() => {
     try {
         return JSON.stringify({ preparedRequest: preparedRequest || null, prepareError: currentPrepareError || null }, null, 2);
-    } catch (e) {
+    } catch {
         return String(preparedRequest) || 'No debug data';
     }
 })()}
