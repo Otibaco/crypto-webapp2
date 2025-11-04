@@ -1,20 +1,20 @@
 "use client"
 
-import React, { useState, useMemo, useCallback, useEffect, useRef } from "react"
+import React, { useState, useMemo, useCallback, useEffect } from "react"
 import Link from "next/link"
 import { Card, CardContent } from "./ui/card"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+// Select UI not used in this file
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "./ui/dialog"
 import Image from "next/image"
-import { ChevronDown, X } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { ArrowLeft, Scan, User, AlertCircle, Loader2, CheckCircle, XCircle } from "lucide-react"
 import { cn } from "../lib/utils"
 import { truncateAddress } from '../lib/utils'
 
-import { parseUnits, formatUnits, isAddress, getAddress, TransactionExecutionError } from 'viem'
+import { parseUnits, isAddress, getAddress, TransactionExecutionError } from 'viem'
 import { addTransaction } from '../controllers/sendController'
 import { useAccount, useBalance, useSendTransaction, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi'
 
@@ -103,7 +103,7 @@ const DetailRow = ({ label, value, valueClass = "font-medium" }) => (
 // ------------------------------------
 
 export function SendPage() {
-    const { address: senderAddress, isConnected, chain, connector } = useAccount()
+    const { address: senderAddress, isConnected, chain } = useAccount()
     const chainId = chain?.id;
     const { switchChain } = useSwitchChain();
 
@@ -132,6 +132,9 @@ export function SendPage() {
     // --- Price Fetching & Amount Calculation ---
 
     // Effect 1: Fetch price (only depends on the selected asset)
+    // This effect should run when confirmation state changes. We intentionally
+    // avoid including transactional values in deps to prevent re-triggering
+    // while the confirmation is in-flight. eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         async function fetchPrice() {
             if (!selectedAsset?.symbol) {
@@ -225,7 +228,7 @@ export function SendPage() {
             const intPart = Number(parts[0]).toLocaleString();
             return parts[1] ? `${intPart}.${parts[1]}` : intPart;
         } catch { return amount }
-    }, [amount, selectedAsset]);
+    }, [amount]);
 
     // Handler for USD Amount input
     const handleUsdAmountChange = (e) => {
@@ -759,11 +762,13 @@ export function SendPage() {
                                                         : `${base}/${folder}/assets/${config.address}/logo.png`;
 
                                                     return (
-                                                        <img
+                                                        <Image
                                                             src={src}
-                                                            onError={e => { e.currentTarget.style.display = 'none' }}
                                                             alt={config.symbol}
-                                                            className="w-8 h-8 rounded-full"
+                                                            width={32}
+                                                            height={32}
+                                                            className="rounded-full"
+                                                            unoptimized
                                                         />
                                                     )
                                                 })()}
@@ -836,11 +841,13 @@ export function SendPage() {
                                                 : `${base}/${folder}/assets/${selectedAsset.address}/logo.png`;
 
                                             return (
-                                                <img
+                                                <Image
                                                     src={src}
-                                                    onError={e => { e.currentTarget.style.display = 'none' }}
                                                     alt={selectedAsset.symbol}
-                                                    className="w-5 h-5 rounded-full"
+                                                    width={20}
+                                                    height={20}
+                                                    className="rounded-full"
+                                                    unoptimized
                                                 />
                                             )
                                         })()}

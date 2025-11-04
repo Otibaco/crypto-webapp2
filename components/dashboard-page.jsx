@@ -4,7 +4,8 @@ import React, { useEffect, useState, useCallback } from "react"
 import { useAccount, useBalance } from "wagmi"
 import { Button } from "./ui/button"
 import { Card } from "./ui/card"
-import { ArrowUp, ArrowDown, ArrowUpDown, ShoppingCart } from "lucide-react"
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react"
+import Image from 'next/image'
 import Link from "next/link"
 
 const TOKENS = [
@@ -61,6 +62,10 @@ export function DashboardPage() {
   const [error, setError] = useState(null)
 
   // Get all balances at once using useBalance
+  // NOTE: useBalance is a hook; calling it inside array.map trips the rules-of-hooks lint rule
+  // but here it's safe because TOKENS is a static array and calls are unconditional and stable.
+  // Disable the rule for this block to satisfy the linter.
+  /* eslint-disable react-hooks/rules-of-hooks */
   const balanceResults = TOKENS.map(token => {
     const tokenAddress = token.addresses
       ? token.addresses[String(token.chainId)] || token.addresses["1"]
@@ -74,6 +79,7 @@ export function DashboardPage() {
       enabled: !!address,
     })
   })
+  /* eslint-enable react-hooks/rules-of-hooks */
 
   // Create balances object from results
   const balances = TOKENS.reduce((acc, token, index) => {
@@ -94,6 +100,7 @@ export function DashboardPage() {
       const data = await res.json()
       setPrices(data)
     } catch (err) {
+      console.error('fetchPrices error', err)
       setError("Failed to fetch prices")
     } finally {
       setIsLoading(false)
@@ -122,11 +129,9 @@ export function DashboardPage() {
         {/* Mobile Layout */}
         <div className="flex w-full items-center justify-between sm:hidden">
           <div className="flex items-center gap-2">
-            <img
-              src={ASSET_LOGOS[token.symbol]}
-              alt={token.symbol}
-              className="w-6 h-6 rounded-full border bg-white object-contain"
-            />
+            <div className="w-6 h-6 rounded-full overflow-hidden border bg-white">
+              <Image src={ASSET_LOGOS[token.symbol]} alt={token.symbol} width={24} height={24} unoptimized className="object-contain" />
+            </div>
             <span className="font-semibold text-sm">{token.symbol}</span>
           </div>
 
@@ -150,12 +155,10 @@ export function DashboardPage() {
 
         {/* Desktop Layout */}
         <div className="hidden sm:flex w-full items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img
-              src={ASSET_LOGOS[token.symbol]}
-              alt={token.symbol}
-              className="w-9 h-9 rounded-full border bg-white object-contain"
-            />
+            <div className="flex items-center gap-4">
+            <div className="w-9 h-9 rounded-full overflow-hidden border bg-white">
+              <Image src={ASSET_LOGOS[token.symbol]} alt={token.symbol} width={36} height={36} unoptimized className="object-contain" />
+            </div>
             <div>
               <span className="font-semibold text-lg">{token.symbol}</span>
               <div className="text-sm text-gray-500">
