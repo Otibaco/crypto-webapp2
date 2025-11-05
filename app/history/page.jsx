@@ -2,7 +2,7 @@
 
 import { useAccount } from 'wagmi';
 import { useQuery } from '@tanstack/react-query'; 
-import { HistoryPage } from "../../../components/history-page";
+import HistoryPage from "../../components/history-page";
 import { Loader2, AlertTriangle } from 'lucide-react';
 
 // (SUPPORTED_CHAINS was removed - not currently used)
