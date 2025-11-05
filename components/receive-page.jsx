@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from 'next/image'
 import { Copy, Check, Search, QrCode, X } from "lucide-react";
 import { useAccount } from "wagmi";
 import { Input } from "./ui/input";
@@ -120,11 +121,9 @@ export function ReceivePage() {
             className="p-4 flex items-center justify-between hover:shadow-lg transition-all"
           >
             <div className="flex items-center gap-3">
-              <img
-                src={net.logo}
-                alt={net.name}
-                className="w-10 h-10 rounded-full border"
-              />
+              <div className="w-10 h-10 rounded-full overflow-hidden border">
+                <Image src={net.logo} alt={net.name} width={40} height={40} unoptimized className="object-cover" />
+              </div>
               <div>
                 <h2 className="font-semibold text-foreground">{net.name}</h2>
                 <p className="text-sm text-muted-foreground">

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useCallback, useEffect } from "react"
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
 import { Card, CardContent } from "./ui/card"
 import { Button } from "./ui/button"
@@ -121,6 +121,7 @@ export function SendPage() {
     const [simulateError, setSimulateError] = useState(null);
     const [showDebugPanel, setShowDebugPanel] = useState(false);
     const [broadcastError, setBroadcastError] = useState(null);
+    const loggedSuccessRef = useRef(null);
     
     // Price State
     const [isUsdInput, setIsUsdInput] = useState(false); // Tracks which input was last used
@@ -177,10 +178,15 @@ export function SendPage() {
     }, [selectedAsset?.symbol]); // Only re-fetch when asset changes
 
     // Effect 2: Recalculate the *other* amount when price changes
-    // We intentionally only run this effect when `assetPrice` changes to avoid update loops
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Use a ref to detect true assetPrice changes so we can include the other
+    // state vars in the deps and still avoid update loops.
+    const prevAssetPriceRef = useRef(assetPrice);
     useEffect(() => {
         if (assetPrice <= 0) return; // Can't calculate
+
+        // Only run when assetPrice actually changed
+        if (prevAssetPriceRef.current === assetPrice) return;
+        prevAssetPriceRef.current = assetPrice;
 
         if (isUsdInput) {
             // User was typing in USD, so recalculate token amount
@@ -191,7 +197,7 @@ export function SendPage() {
             const usdValue = (Number(amount) * assetPrice).toFixed(2);
             setUsdAmount(Number(usdValue) > 0 ? usdValue : "");
         }
-    }, [assetPrice]); // Only runs when price updates
+    }, [assetPrice, amount, isUsdInput, usdAmount]);
 
     // Effect 3: Reset amounts when asset changes
     useEffect(() => {
@@ -598,38 +604,44 @@ export function SendPage() {
 
     // Auto-close modal on success after short delay and reset form
     useEffect(() => {
-        if (isConfirmed && txReceipt?.status === 'success') {
-                        setIsSending(false);
-                        // Log successful confirmation (upsert by txHash)
-                        (async () => {
-                            try {
-                                await addTransactionAction({
-                                    walletAddress: senderAddress,
-                                    txHash: txHash,
-                                    type: isTokenSend ? 'send' : 'send',
-                                    token: selectedAsset?.symbol || '',
-                                    amount: amount?.toString() || '',
-                                    status: 'success',
-                                })
-                            } catch (err) {
-                                console.error('Failed to log confirmed transaction', err)
-                            }
-                        })()
+        // Only act when a confirmation occurs or a final failure happens.
+        if (isConfirmed && txReceipt?.status === 'success' && txHash) {
+            // avoid double-logging the same tx
+            if (loggedSuccessRef.current === txHash) return;
+            loggedSuccessRef.current = txHash;
 
-                        const t = setTimeout(() => {
-                                setShowConfirmModal(false);
-                                setTxHash(null);
-                                setAmount("");
-                                setUsdAmount("");
-                                setRecipient("");
-                        }, 2000);
-                        return () => clearTimeout(t);
+            setIsSending(false);
+            // Log successful confirmation (upsert by txHash)
+            (async () => {
+                try {
+                    await addTransactionAction({
+                        walletAddress: senderAddress,
+                        txHash: txHash,
+                        type: isTokenSend ? 'send' : 'send',
+                        token: selectedAsset?.symbol || '',
+                        amount: amount?.toString() || '',
+                        status: 'success',
+                    })
+                } catch (err) {
+                    console.error('Failed to log confirmed transaction', err)
+                }
+            })()
+
+            const t = setTimeout(() => {
+                setShowConfirmModal(false);
+                setTxHash(null);
+                setAmount("");
+                setUsdAmount("");
+                setRecipient("");
+            }, 2000);
+            return () => clearTimeout(t);
         }
+
         // If failed, ensure sending flag is cleared
         if (isFailed) {
             setIsSending(false);
         }
-    }, [isConfirmed, isFailed, txReceipt]);
+    }, [isConfirmed, isFailed, txReceipt, txHash, senderAddress, isTokenSend, selectedAsset?.symbol, amount]);
     
     // --- 🎯 UPDATED ACTION BUTTON RENDERER ---
     
