@@ -24,7 +24,7 @@ export function ScrollReveal({ children, direction = "up", delay = 0, className 
     }
 
     return () => observer.disconnect()
-  }, [delay])
+  }, [delay, elementRef])
 
   const getTransform = () => {
     if (isVisible) return "translate3d(0, 0, 0)"

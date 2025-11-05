@@ -1,7 +1,7 @@
 import { Navigation } from "../../components/navigation"
 import Footer from "../../components/footer"
+/* eslint-disable react/no-unescaped-entities */
 import { Card, CardContent } from "../../components/ui/card"
-import { Button } from "../../components/ui/button"
 import { AppDownload } from "../../components/app-download"
 import CustomAppKitButton from "../../components/CustomAppKitButton"
 import { Smartphone, Monitor, Tablet, Zap, Shield, RefreshCw, QrCode, Wallet } from "lucide-react"

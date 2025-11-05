@@ -29,7 +29,7 @@ export function ParallaxSection({ children, speed = 0.5, className = "" }) {
 
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [speed])
+  }, [speed, sectionRef])
 
   return (
     <div ref={sectionRef} className={className}>

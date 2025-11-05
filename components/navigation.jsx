@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Button } from "../components/ui/button"
-import { Menu, X, Wallet } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import CustomAppKitButton from "../components/CustomAppKitButton"
 

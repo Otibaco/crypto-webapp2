@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import Footer from "../../components/footer"
 import { Navigation } from "../../components/navigation"
 
