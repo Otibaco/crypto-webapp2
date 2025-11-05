@@ -14,7 +14,7 @@ const queryClient = new QueryClient()
 const metadata = {
   name: '2sweet',
   description: 'Ethereum based dApp',
-  url: 'https://crypto-webapp-phi.vercel.app',  
+  url: 'https://crypto-webapp2.vercel.app/',  
   // url: 'http://localhost:3000',
   icons: ['/logo2.png']
 }

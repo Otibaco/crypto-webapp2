@@ -1,13 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-
-import "../app/globals.css";
-import { Suspense } from "react";
-import { BottomNavigation } from "../components/bottom-navigation";
-
-// Import the new ContextProvider component
+import "./globals.css";
 import ContextProvider from "../context";
 import { headers } from "next/headers";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,9 +15,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "CryptoWallet",
-  description: "Modern cryptocurrency wallet with DeFi features",
+  title: "2$weet - Professional Crypto Exchange & Trading Platform",
+  description:
+    "Trade cryptocurrencies with confidence on 2$weet. Professional trading platform with advanced features, security, and mobile app.",
+  keywords:
+    "cryptocurrency, crypto exchange, bitcoin, trading, blockchain, digital assets",
+  icons: {
+    icon: "/logo2.png",        // Favicon (shows in browser tab)
+    shortcut: "/logo2.png",    // Safari/old browsers
+    apple: "/logo2.png",       // iOS home screen icon
+  },
+  openGraph: {
+    images: ["/logo2.png"],    // For link previews (FB, Twitter, WhatsApp)
+  },
 };
+
 
 export default async function RootLayout({
   children,
@@ -32,23 +39,24 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="dark">
+
       <body
         className={`font-sans ${geistSans.variable} ${geistMono.variable} antialiased`}
         cz-shortcut-listen="true"
       >
-        {/* Wrap the entire app with the ContextProvider */}
+
         <ContextProvider cookies={cookies}>
+
           <div className="min-h-screen bg-background">
             <main className="pb-20">
-              <Suspense fallback={<div>Loading...</div>}>
+              {/* <Suspense fallback={<div>Loading...</div>}> */}
                 {children}
-              </Suspense>
+              {/* </Suspense> */}
             </main>
-            <BottomNavigation />
           </div>
         </ContextProvider>
-        <Analytics />
       </body>
     </html>
   );
 }
+

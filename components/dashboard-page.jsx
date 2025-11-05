@@ -269,9 +269,9 @@ export function DashboardPage() {
       {/* Actions */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {[
-          { href: "/send", icon: <ArrowUp />, label: "Send" },
-          { href: "/receive", icon: <ArrowDown />, label: "Receive" },
-          { href: "/swap", icon: <ArrowUpDown />, label: "Swap" },
+          { href: "/dashboard/send", icon: <ArrowUp />, label: "Send" },
+          { href: "/dashboard/receive", icon: <ArrowDown />, label: "Receive" },
+          { href: "/dashboard/swap", icon: <ArrowUpDown />, label: "Swap" },
         ].map((action, i) => (
           <Link key={i} href={action.href}>
             <Button className="h-14 sm:h-16 flex flex-col justify-center items-center gap-1 bg-secondary hover:bg-secondary/80 rounded-xl shadow-md w-full">
