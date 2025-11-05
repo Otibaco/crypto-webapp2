@@ -203,6 +203,28 @@ export function DashboardPage() {
     return totalValue ? (weightedChange / totalValue) * 100 : 0
   })()
 
+  // If not connected, show connect view
+  if (!isConnected) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[80vh] p-4 text-center">
+        <Card className="max-w-md w-full p-6 space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">Welcome to 2Sweet</h1>
+            <p className="text-gray-500">
+              Connect your wallet to view your portfolio and start trading
+            </p>
+          </div>
+          <div className="flex flex-col gap-4">
+            <appkit-button />
+            <p className="text-xs text-gray-400">
+              Connect your wallet to access your dashboard and start managing your crypto assets
+            </p>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="p-3 sm:p-5 space-y-5 max-w-5xl mx-auto">
       {/* Header */}
@@ -210,14 +232,12 @@ export function DashboardPage() {
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">Dashboard</h1>
           <p className="text-xs sm:text-sm text-gray-500 break-all">
-            {address
-              ? `Welcome, ${address.slice(0, 6)}...${address.slice(-4)}`
-              : "Wallet not connected"}
+            Welcome, {address.slice(0, 6)}...{address.slice(-4)}
           </p>
         </div>
         <Button
           onClick={fetchPrices}
-          disabled={!isConnected || isLoading}
+          disabled={isLoading}
           className="self-start sm:self-center"
         >
           Refresh

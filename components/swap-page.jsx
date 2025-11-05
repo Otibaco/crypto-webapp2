@@ -128,6 +128,32 @@ export default function SwapPage() {
     return () => clearTimeout(timer)
   }, [toast])
 
+  // Error message mapping for user-friendly errors
+  const getErrorMessage = (error) => {
+    if (typeof error === 'string') {
+      return error;
+    }
+    
+    // Handle structured errors
+    if (error?.err?.kind === 'NoPair') {
+      return `This token pair is currently unavailable. This usually means there isn't enough liquidity for this swap.`;
+    }
+    
+    // Map other common errors to user-friendly messages
+    const errorMapping = {
+      'amount_too_small': 'The amount is too small for this swap.',
+      'insufficient_liquidity': 'There is not enough liquidity for this swap.',
+      'rate_unavailable': 'Exchange rate is temporarily unavailable.',
+      'pair_temporarily_unavailable': 'This token pair is temporarily unavailable.',
+    };
+
+    if (error?.err?.details) {
+      return errorMapping[error.err.details] || error.err.details;
+    }
+
+    return 'An unexpected error occurred. Please try again later.';
+  };
+
   // Fetch quote
   const fetchQuote = useCallback(async () => {
     if (!fromToken || !toToken || !amount || Number(amount) <= 0) {
@@ -141,11 +167,18 @@ export default function SwapPage() {
         `/api/swap?from=${fromToken.symbol.toLowerCase()}&to=${toToken.symbol.toLowerCase()}&amount=${amount}&fromChain=${CHAIN_NAMES[fromToken.requiredChainId]}&toChain=${CHAIN_NAMES[toToken.requiredChainId]}`
       )
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Quote failed")
+      if (!res.ok) {
+        throw new Error(data.error || "Quote failed")
+      }
       setQuote(data)
     } catch (err) {
-      console.error(err)
-      setToast({ type: "error", message: err.message })
+      console.error('Quote error:', err)
+      const errorMessage = getErrorMessage(err.message ? err.message : err)
+      setToast({ 
+        type: "error", 
+        message: errorMessage,
+        details: err?.err?.details || null
+      })
       setQuote(null)
     } finally {
       setIsQuoting(false)
@@ -201,7 +234,10 @@ export default function SwapPage() {
       if (!res.ok) {
         status = 'failed'
         error = data.error || "Swap creation failed"
-        throw new Error(error)
+        
+        // Handle specific API errors
+        const errorMessage = getErrorMessage(data.error || error)
+        throw new Error(errorMessage)
       }
 
       depositAddress = data.deposit_address
@@ -388,14 +424,27 @@ export default function SwapPage() {
               {toast && (
                 <div
                   className={cn(
-                    "text-sm p-3 rounded-md mt-2",
+                    "text-sm p-4 rounded-md mt-2",
                     toast.type === "error"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-green-100 text-green-700"
+                      ? "bg-red-100 text-red-700 border border-red-200"
+                      : "bg-green-100 text-green-700 border border-green-200"
                   )}
-                  style={{ whiteSpace: "pre-wrap" }} // Ensures line breaks
+                  style={{ whiteSpace: "pre-wrap" }}
                 >
-                  {toast.message}
+                  <div className="font-medium mb-1">
+                    {toast.type === "error" ? "❌ Error" : "✅ Success"}
+                  </div>
+                  <div>{toast.message}</div>
+                  {toast.type === "error" && toast.details && (
+                    <div className="mt-2 text-xs opacity-75">
+                      Try:
+                      <ul className="list-disc list-inside mt-1">
+                        <li>Using a different token pair</li>
+                        <li>Reducing the swap amount</li>
+                        <li>Trying again in a few minutes</li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
