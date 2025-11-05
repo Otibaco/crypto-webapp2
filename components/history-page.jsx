@@ -38,7 +38,7 @@ const getAssetLogoUrl = (token, chain) => {
 };
 
 // IMPORTANT: This component now accepts the walletAddress prop
-export default function HistoryPage({ initialTransactions, walletAddress }) {
+export function HistoryPage({ initialTransactions, walletAddress }) {
     const [activeFilter, setActiveFilter] = useState("all")
     const [searchQuery, setSearchQuery] = useState("")
     const [transactions, setTransactions] = useState(initialTransactions || [])
