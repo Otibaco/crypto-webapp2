@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 export async function POST(req) {
   try {
-    const { from, to, amount, fromChain, toChain, address, refundAddress } = await req.json()
+    const { from, to, amount, address, refundAddress } = await req.json()
 
     if (!from || !to || !amount || !address) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
