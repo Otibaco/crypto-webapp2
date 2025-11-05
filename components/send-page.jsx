@@ -15,7 +15,7 @@ import { cn } from "../lib/utils"
 import { truncateAddress } from '../lib/utils'
 
 import { parseUnits, isAddress, getAddress, TransactionExecutionError } from 'viem'
-import { addTransaction } from '../controllers/sendController'
+import { addTransaction} from '../controllers/sendController'
 import { useAccount, useBalance, useSendTransaction, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi'
 
 import { BottomNavigation } from "./bottom-navigation"
@@ -432,7 +432,7 @@ export function SendPage() {
                         // Log pending transaction (fire-and-forget)
                         try {
                             const broadcastHash = data?.hash || data || data?.transactionHash || null
-                            await addTransactionAction({
+                            await addTransaction({
                                 walletAddress: senderAddress,
                                 txHash: broadcastHash,
                                 type: isTokenSend ? 'send' : 'send',
@@ -614,7 +614,7 @@ export function SendPage() {
             // Log successful confirmation (upsert by txHash)
             (async () => {
                 try {
-                    await addTransactionAction({
+                    await addTransaction({
                         walletAddress: senderAddress,
                         txHash: txHash,
                         type: isTokenSend ? 'send' : 'send',
@@ -846,7 +846,7 @@ export function SendPage() {
                                                 'Optimism': 'optimism',
                                                 'Arbitrum': 'arbitrum',
                                                 'Base': 'base',
-                                            };
+                                            };// assets icons
                                             const folder = chainFolderMap[selectedAsset.chainName] || selectedAsset.chainName.toLowerCase().replace(/\s+/g, '-');
                                             const src = selectedAsset.isNative
                                                 ? `${base}/${folder}/info/logo.png`
